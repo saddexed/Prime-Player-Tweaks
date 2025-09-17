@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Prime Video Player Enhancer",
+  "version": "1.0",
+  "description": "Enhance Amazon Prime Video player with custom modifications",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.amazon.com/*",
+    "*://*.primevideo.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.amazon.com/gp/video/*",
+        "*://*.primevideo.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Prime Video Player Settings"
+  }
+}

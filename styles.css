@@ -1,0 +1,149 @@
+/* Prime Video Player Enhancer Styles */
+
+/* Custom notification for shortcuts */
+.pv-shortcut-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.pv-shortcut-notification.show {
+    opacity: 1;
+}
+
+/* === OVERLAY HIDING FUNCTIONALITY === */
+/* Only hide overlays when the setting is enabled */
+
+/* Neutralize known gradient containers but keep controls clickable */
+.pv-hide-overlays-enabled .f17xkig1,
+.pv-hide-overlays-enabled .f1xc9j4q,
+.pv-hide-overlays-enabled .f1qhstcn,
+.pv-hide-overlays-enabled .f1coljy2,
+.pv-hide-overlays-enabled .f1tjtxro,
+.pv-hide-overlays-enabled .frgoruw {
+  background: transparent !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+}
+
+/* Hide pure gradient layers completely */
+.pv-hide-overlays-enabled .f48hyfp,
+.pv-hide-overlays-enabled .fm29xgo,
+.pv-hide-overlays-enabled .f185164e,
+.pv-hide-overlays-enabled .fkpovp9,
+.pv-hide-overlays-enabled .fr14nhz,
+.pv-hide-overlays-enabled .fy68lg5,
+.pv-hide-overlays-enabled .f10i0hvc,
+.pv-hide-overlays-enabled .fvtlr3b,
+.pv-hide-overlays-enabled .f440csd {
+  display: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Safety: leave ignored classes untouched */
+.f6ywii6 { }
+
+/* Suppress X-Ray quick view overlay */
+.pv-hide-overlays-enabled .xrayQuickView,
+.pv-hide-overlays-enabled .xrayQuickView.show,
+.pv-hide-overlays-enabled [class*="xrayQuickView"],
+.pv-hide-overlays-enabled [data-automation-id="xrayQuickView"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Kill pseudo-element overlays for elements we flag at runtime */
+.pv-hide-overlays-enabled [data-pv-overlay-scope] .pv-kill-overlay::before,
+.pv-hide-overlays-enabled [data-pv-overlay-scope] .pv-kill-overlay::after {
+  content: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+
+/* Ensure undimmed ancestors don't reapply visual effects */
+.pv-hide-overlays-enabled .pv-undim {
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+}
+.pv-hide-overlays-enabled .pv-undim::before, 
+.pv-hide-overlays-enabled .pv-undim::after {
+  content: none !important;
+}
+
+/* Remove requested top margins + your additions */
+.pv-hide-overlays-enabled .f14lixj3, 
+.pv-hide-overlays-enabled .fcckh95 { 
+  margin-top: 10px !important; 
+}
+.pv-hide-overlays-enabled .f1d63tv1 { 
+  opacity: 1 !important; 
+}
+.pv-hide-overlays-enabled .f1makowq { 
+  background: rgba(0, 0, 0, 0) !important; 
+}
+
+.pv-hide-overlays-enabled .f1v8xbwx { 
+  padding-right: 15px !important; 
+}
+.pv-hide-overlays-enabled .f1hz0yp6 { 
+  padding-left: 15px !important; 
+}
+
+/* Runtime toggle - when user presses Alt+O to temporarily disable overlays */
+.pv-overlays-runtime-disabled .f17xkig1,
+.pv-overlays-runtime-disabled .f1xc9j4q,
+.pv-overlays-runtime-disabled .f1qhstcn,
+.pv-overlays-runtime-disabled .f1coljy2,
+.pv-overlays-runtime-disabled .f1tjtxro,
+.pv-overlays-runtime-disabled .frgoruw,
+.pv-overlays-runtime-disabled .f48hyfp,
+.pv-overlays-runtime-disabled .fm29xgo,
+.pv-overlays-runtime-disabled .f185164e,
+.pv-overlays-runtime-disabled .fkpovp9,
+.pv-overlays-runtime-disabled .fr14nhz,
+.pv-overlays-runtime-disabled .fy68lg5,
+.pv-overlays-runtime-disabled .f10i0hvc,
+.pv-overlays-runtime-disabled .fvtlr3b,
+.pv-overlays-runtime-disabled .f440csd {
+  background: initial !important;
+  background-image: initial !important;
+  opacity: initial !important;
+  backdrop-filter: initial !important;
+  display: initial !important;
+  pointer-events: initial !important;
+}
+
+/* === ADVANCED CONTROLS FUNCTIONALITY === */
+/* Only enable advanced controls when the setting is enabled */
+
+/* During manual seek, force-hide controls briefly */
+.pv-advanced-controls-enabled [data-pv-overlay-scope].pv-seek-suppress [role="toolbar"],
+.pv-advanced-controls-enabled [data-pv-overlay-scope].pv-seek-suppress [data-automation-id*="control"],
+.pv-advanced-controls-enabled [data-pv-overlay-scope].pv-seek-suppress [data-testid*="control"],
+.pv-advanced-controls-enabled [data-pv-overlay-scope].pv-seek-suppress [class*="control"],
+.pv-advanced-controls-enabled [data-pv-overlay-scope].pv-seek-suppress [class*="Controls"],
+.pv-advanced-controls-enabled [data-pv-overlay-scope].pv-seek-suppress [class*="controls"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
