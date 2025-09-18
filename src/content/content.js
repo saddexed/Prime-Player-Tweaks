@@ -202,7 +202,7 @@
         window.addEventListener('keydown', function(e) {
             if (!interceptArrows || !settings.advancedControls) return;
             var key = e.key;
-            if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'a' && key !== 'A' && key !== 's' && key !== 'S') return;
+            if (key !== 'ArrowLeft' && key !== 'ArrowRight') return;
             if (isEditableTarget(e.target)) return;
 
             var video = getActiveVideo();
@@ -214,14 +214,7 @@
 
             // Step sizes: Alt = 60s, default = 10s, Shift = 3s
             var step = e.altKey ? 60 : (e.shiftKey ? 3 : 10);
-            var delta;
-            
-            // Handle arrow keys and A/S keys
-            if (key === 'ArrowRight' || key === 's' || key === 'S') {
-                delta = +step;
-            } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
-                delta = -step;
-            }
+            var delta = (key === 'ArrowRight') ? +step : -step;
 
             performSeek(video, delta);
             suppressControlsBriefly();
@@ -232,7 +225,7 @@
         
         window.addEventListener('keyup', function (e) {
             if (!interceptArrows || !settings.advancedControls) return;
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'a' || e.key === 'A' || e.key === 's' || e.key === 'S') {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 if (isEditableTarget(e.target)) return;
                 e.stopImmediatePropagation();
                 e.preventDefault();
