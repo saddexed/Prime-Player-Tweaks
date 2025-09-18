@@ -1,6 +1,6 @@
-# Prime Video Player Enhancer
+# Prime Player Tweaks
 
-A Chrome extension that enhances the Amazon Prime Video viewing experience by removing visual distractions, adding advanced keyboard controls, and improving the overall player interface.
+A Chromium based extension that enhances the Amazon Prime Video viewing experience by removing visual distractions, adding advanced keyboard controls, and improving the overall player interface.
 I got the idea because Netflix's player ui looks so clean...
 
 ## 🚀 Features
