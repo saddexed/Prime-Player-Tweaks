@@ -6,6 +6,7 @@
     
     let settings = {
         hideOverlays: true,
+        hideXray: true,
         advancedControls: true
     };
     
@@ -36,6 +37,7 @@
         // Load settings from storage
         chrome.storage.sync.get({
             hideOverlays: true,
+            hideXray: true,
             advancedControls: true
         }, function(items) {
             settings = items;
@@ -66,7 +68,7 @@
     
     function applyEnhancements() {
         // Remove existing classes first
-        document.body.classList.remove('pv-hide-overlays-enabled', 'pv-advanced-controls-enabled');
+        document.body.classList.remove('pv-hide-overlays-enabled', 'pv-hide-xray-enabled', 'pv-advanced-controls-enabled');
         
         // Apply overlay hiding based on setting
         if (settings.hideOverlays) {
@@ -74,6 +76,11 @@
             overlaysEnabled = true;
         } else {
             overlaysEnabled = false;
+        }
+        
+        // Apply X-Ray hiding based on setting
+        if (settings.hideXray) {
+            document.body.classList.add('pv-hide-xray-enabled');
         }
         
         // Apply advanced controls based on setting

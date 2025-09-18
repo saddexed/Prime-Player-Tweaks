@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <style>
         body {
-            width: 280px;
+            width: 300px;
             padding: 20px;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -98,6 +98,24 @@
             border-radius: 3px;
             font-family: monospace;
         }
+        
+        .credit {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 11px;
+            color: #888;
+        }
+        
+        .credit a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        
+        .credit a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -112,11 +130,60 @@
     </div>
     
     <div class="setting">
+        <label for="hideXray">Hide X-Ray quick view</label>
+        <label class="toggle">
+            <input type="checkbox" id="hideXray">
+            <span class="slider"></span>
+        </label>
+    </div>
+    
+    <div class="setting">
         <label for="advancedControls">Advanced controls</label>
         <label class="toggle">
             <input type="checkbox" id="advancedControls">
             <span class="slider"></span>
         </label>
+    </div>
+    
+    <div class="shortcuts">
+        <h3>Keyboard Controls</h3>
+        <div class="shortcut">
+            <span>Toggle fullscreen</span>
+            <span class="key">F</span>
+        </div>
+        <div class="shortcut">
+            <span>Skip back 10s</span>
+            <span class="key">J</span>
+        </div>
+        <div class="shortcut">
+            <span>Skip forward 10s</span>
+            <span class="key">L</span>
+        </div>
+        <div class="shortcut">
+            <span>Seek back/forward 10s</span>
+            <span class="key">←→</span>
+        </div>
+        <div class="shortcut">
+            <span>Seek back/forward 3s</span>
+            <span class="key">Shift+←→</span>
+        </div>
+        <div class="shortcut">
+            <span>Seek back/forward 60s</span>
+            <span class="key">Alt+←→</span>
+        </div>
+        <div class="shortcut">
+            <span>Toggle overlay hiding</span>
+            <span class="key">Alt+O</span>
+        </div>
+        <div class="shortcut">
+            <span>Toggle arrow seeking</span>
+            <span class="key">Alt+K</span>
+        </div>
+    </div>
+    
+    <div class="credit">
+        <div>Original script by <a href="https://github.com/saddexed" target="_blank">saddex</a></div>
+        <div>Chrome extension adaptation</div>
     </div>
     
     <script src="popup.js"></script>

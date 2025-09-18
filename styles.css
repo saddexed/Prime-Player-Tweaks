@@ -52,20 +52,6 @@
   pointer-events: none !important;
 }
 
-/* Safety: leave ignored classes untouched */
-.f6ywii6 { }
-
-/* Suppress X-Ray quick view overlay */
-.pv-hide-overlays-enabled .xrayQuickView,
-.pv-hide-overlays-enabled .xrayQuickView.show,
-.pv-hide-overlays-enabled [class*="xrayQuickView"],
-.pv-hide-overlays-enabled [data-automation-id="xrayQuickView"] {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
 /* Kill pseudo-element overlays for elements we flag at runtime */
 .pv-hide-overlays-enabled [data-pv-overlay-scope] .pv-kill-overlay::before,
 .pv-hide-overlays-enabled [data-pv-overlay-scope] .pv-kill-overlay::after {
@@ -132,6 +118,20 @@
   pointer-events: initial !important;
 }
 
+/* === X-RAY HIDING FUNCTIONALITY === */
+/* Separate toggle for X-Ray quick view overlay */
+
+/* Suppress X-Ray quick view overlay when hideXray is enabled */
+.pv-hide-xray-enabled .xrayQuickView,
+.pv-hide-xray-enabled .xrayQuickView.show,
+.pv-hide-xray-enabled [class*="xrayQuickView"],
+.pv-hide-xray-enabled [data-automation-id="xrayQuickView"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* === ADVANCED CONTROLS FUNCTIONALITY === */
 /* Only enable advanced controls when the setting is enabled */
 
@@ -147,3 +147,6 @@
   pointer-events: none !important;
   transition: none !important;
 }
+
+/* Safety: leave ignored classes untouched */
+.f6ywii6 { }

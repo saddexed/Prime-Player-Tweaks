@@ -4,17 +4,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load saved settings
     loadSettings();
     
-    // Add event listeners for the two toggles
+    // Add event listeners for all three toggles
     document.getElementById('hideOverlays').addEventListener('change', saveSettings);
+    document.getElementById('hideXray').addEventListener('change', saveSettings);
     document.getElementById('advancedControls').addEventListener('change', saveSettings);
 });
 
 function loadSettings() {
     chrome.storage.sync.get({
         hideOverlays: true,
+        hideXray: true,
         advancedControls: true
     }, function(items) {
         document.getElementById('hideOverlays').checked = items.hideOverlays;
+        document.getElementById('hideXray').checked = items.hideXray;
         document.getElementById('advancedControls').checked = items.advancedControls;
     });
 }
@@ -22,6 +25,7 @@ function loadSettings() {
 function saveSettings() {
     const settings = {
         hideOverlays: document.getElementById('hideOverlays').checked,
+        hideXray: document.getElementById('hideXray').checked,
         advancedControls: document.getElementById('advancedControls').checked
     };
     
