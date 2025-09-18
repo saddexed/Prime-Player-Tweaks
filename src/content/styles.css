@@ -2,17 +2,18 @@
 
 /* Custom notification for shortcuts */
 .pv-shortcut-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+    position: absolute;
+    top: 48px;
+    right: 24px;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 10px 15px;
     border-radius: 5px;
     font-size: 14px;
-    z-index: 10000;
+    z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 .pv-shortcut-notification.show {
@@ -94,30 +95,6 @@
   padding-left: 15px !important; 
 }
 
-/* Runtime toggle - when user presses Alt+O to temporarily disable overlays */
-.pv-overlays-runtime-disabled .f17xkig1,
-.pv-overlays-runtime-disabled .f1xc9j4q,
-.pv-overlays-runtime-disabled .f1qhstcn,
-.pv-overlays-runtime-disabled .f1coljy2,
-.pv-overlays-runtime-disabled .f1tjtxro,
-.pv-overlays-runtime-disabled .frgoruw,
-.pv-overlays-runtime-disabled .f48hyfp,
-.pv-overlays-runtime-disabled .fm29xgo,
-.pv-overlays-runtime-disabled .f185164e,
-.pv-overlays-runtime-disabled .fkpovp9,
-.pv-overlays-runtime-disabled .fr14nhz,
-.pv-overlays-runtime-disabled .fy68lg5,
-.pv-overlays-runtime-disabled .f10i0hvc,
-.pv-overlays-runtime-disabled .fvtlr3b,
-.pv-overlays-runtime-disabled .f440csd {
-  background: initial !important;
-  background-image: initial !important;
-  opacity: initial !important;
-  backdrop-filter: initial !important;
-  display: initial !important;
-  pointer-events: initial !important;
-}
-
 /* === X-RAY HIDING FUNCTIONALITY === */
 /* Separate toggle for X-Ray quick view overlay */
 
@@ -148,5 +125,22 @@
   transition: none !important;
 }
 
-/* Safety: leave ignored classes untouched */
-.f6ywii6 { }
+/* Captions */
+.atvwebplayersdk-bottompanel-container, .f1hy437 {
+  height: 100% !important;
+}
+.fz1vtnl {
+  margin-top: 0 !important;
+}
+.atvwebplayersdk-captions-overlay > div > div { 
+  height: 100% !important;
+  bottom: 0px !important;
+}
+
+.atvwebplayersdk-bottompanel-container {
+  padding-top: 0 !important;
+}
+
+div > .atvwebplayersdk-bottompanel-container {
+  padding-top: 0 !important;
+}

@@ -3,6 +3,12 @@
   "name": "Prime Video Player Enhancer",
   "version": "1.0",
   "description": "Enhance Amazon Prime Video player with custom modifications",
+  "icons": {
+    "16": "icons/icon_16px.png",
+    "32": "icons/icon_32px.png",
+    "48": "icons/icon_48px.png",
+    "128": "icons/icon_128px.png"
+  },
   "permissions": [
     "activeTab",
     "storage"
@@ -17,13 +23,19 @@
         "*://*.amazon.com/gp/video/*",
         "*://*.primevideo.com/*"
       ],
-      "js": ["content.js"],
-      "css": ["styles.css"],
+      "js": ["src/content/content.js"],
+      "css": ["src/content/styles.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Prime Video Player Settings"
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Prime Video Player Settings",
+    "default_icon": {
+      "16": "icons/icon_16px.png",
+      "32": "icons/icon_32px.png",
+      "48": "icons/icon_48px.png",
+      "128": "icons/icon_128px.png"
+    }
   }
 }

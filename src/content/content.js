@@ -98,9 +98,6 @@
         // Initialize player root detection for overlay management
         initRootSoon();
         
-        // Setup toggle shortcuts (Alt+O for overlays, Alt+K for arrow interception)
-        setupToggleShortcuts();
-        
         // Setup advanced arrow key handling (always active when advanced controls enabled)
         setupAdvancedKeyHandling();
     }
@@ -205,7 +202,7 @@
         window.addEventListener('keydown', function(e) {
             if (!interceptArrows || !settings.advancedControls) return;
             var key = e.key;
-            if (key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+            if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'a' && key !== 'A' && key !== 's' && key !== 'S') return;
             if (isEditableTarget(e.target)) return;
 
             var video = getActiveVideo();
@@ -217,7 +214,14 @@
 
             // Step sizes: Alt = 60s, default = 10s, Shift = 3s
             var step = e.altKey ? 60 : (e.shiftKey ? 3 : 10);
-            var delta = (key === 'ArrowRight') ? +step : -step;
+            var delta;
+            
+            // Handle arrow keys and A/S keys
+            if (key === 'ArrowRight' || key === 's' || key === 'S') {
+                delta = +step;
+            } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+                delta = -step;
+            }
 
             performSeek(video, delta);
             suppressControlsBriefly();
@@ -228,33 +232,13 @@
         
         window.addEventListener('keyup', function (e) {
             if (!interceptArrows || !settings.advancedControls) return;
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'a' || e.key === 'A' || e.key === 's' || e.key === 'S') {
                 if (isEditableTarget(e.target)) return;
                 e.stopImmediatePropagation();
                 e.preventDefault();
                 suppressControlsBriefly();
             }
         }, true);
-    }
-    
-    function setupToggleShortcuts() {
-        document.addEventListener('keydown', function (e) {
-            // Toggle overlays with Alt+O (only works if hideOverlays setting is enabled)
-            if (e.altKey && (e.key === 'o' || e.key === 'O') && settings.hideOverlays) {
-                overlaysEnabled = !overlaysEnabled;
-                // Toggle the CSS by enabling/disabling overlay hiding classes
-                document.body.classList.toggle('pv-overlays-runtime-disabled', !overlaysEnabled);
-                showShortcutNotification(overlaysEnabled ? 'Overlay hiding enabled' : 'Overlay hiding disabled');
-                console.log('[PV Overlay]', overlaysEnabled ? 'Hidden overlays enabled' : 'Hidden overlays disabled');
-            }
-            
-            // Toggle arrow interception with Alt+K (only works if advanced controls enabled)
-            if (e.altKey && (e.key === 'k' || e.key === 'K') && settings.advancedControls) {
-                interceptArrows = !interceptArrows;
-                showShortcutNotification(`Arrow seek ${interceptArrows ? 'enabled' : 'disabled'}`);
-                console.log('[PV Overlay] Arrow seek interception', interceptArrows ? 'ENABLED' : 'DISABLED');
-            }
-        });
     }
     
     function initRootSoon() {
@@ -305,10 +289,26 @@
     }
     
     function showShortcutNotification(message) {
+        // Find the video player container
+        const playerContainer = document.querySelector('[data-automation-id="webPlayer"]') ||
+                               document.querySelector('.atvwebplayersdk-root') ||
+                               document.querySelector('.dv-player-fullscreen') ||
+                               document.querySelector('.webPlayer') ||
+                               document.querySelector('video').closest('[class*="player"]') ||
+                               document.body;
+
+        // Remove any existing notifications
+        const existingNotification = playerContainer.querySelector('.pv-shortcut-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
         const notification = document.createElement('div');
         notification.className = 'pv-shortcut-notification';
         notification.textContent = message;
-        document.body.appendChild(notification);
+        
+        // Inject into player container instead of body
+        playerContainer.appendChild(notification);
         
         setTimeout(() => notification.classList.add('show'), 10);
         
