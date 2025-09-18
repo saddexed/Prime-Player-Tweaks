@@ -1,52 +1,57 @@
-
-(function() {
+(function () {
     'use strict';
-    
+
     let settings = {
         hideOverlays: true,
         hideXray: true,
+        forceQuality: false,
         advancedControls: true
     };
-    
+
+    let previousSettings = null;
+
+    let interceptorsActive = false;
+    let qualityObserver = null;
+
     let rootRef = null;
     let seekSuppressTimer = null;
     let interceptArrows = true;
     let overlaysEnabled = true;
-    
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeEnhancements);
     } else {
         initializeEnhancements();
     }
-    
-    chrome.runtime.onMessage.addListener(function(request, _sender, _sendResponse) {
+
+    chrome.runtime.onMessage.addListener(function (request, _sender, _sendResponse) {
         if (request.action === 'updateSettings') {
             settings = request.settings;
             applyEnhancements();
         }
     });
-    
+
     function initializeEnhancements() {
-        console.log('Prime Video Player Enhancer: Initializing...');
-        
+
         chrome.storage.sync.get({
             hideOverlays: true,
             hideXray: true,
+            forceQuality: false,
             advancedControls: true
-        }, function(items) {
+        }, function (items) {
             settings = items;
-            
-            waitForElement('video, .dv-player-fullscreen', function(_player) {
-                console.log('Prime Video Player Enhancer: Player found, applying enhancements...');
+
+            waitForElement('video, .dv-player-fullscreen', function (_player) {
+                console.log('Player found, applying enhancements...');
                 applyEnhancements();
                 initializeAdvancedFeatures();
             });
         });
     }
-    
+
     function waitForElement(selector, callback, timeout = 10000) {
         const startTime = Date.now();
-        
+
         function check() {
             const element = document.querySelector(selector);
             if (element) {
@@ -55,49 +60,224 @@
                 setTimeout(check, 100);
             }
         }
-        
+
         check();
     }
-    
+
     function applyEnhancements() {
+        if (previousSettings === null) {
+            console.log('tweaks applied!:', settings);
+        } else {
+            const changes = {};
+            for (const key in settings) {
+                if (settings[key] !== previousSettings[key]) {
+                    changes[key] = {
+                        from: previousSettings[key],
+                        to: settings[key]
+                    };
+                }
+            }
+
+            if (Object.keys(changes).length > 0) {
+                console.log('tweak changed', changes);
+            }
+        }
+
+        previousSettings = { ...settings };
+
         document.body.classList.remove('pv-hide-overlays-enabled', 'pv-hide-xray-enabled', 'pv-advanced-controls-enabled');
-        
+
         if (settings.hideOverlays) {
             document.body.classList.add('pv-hide-overlays-enabled');
             overlaysEnabled = true;
         } else {
             overlaysEnabled = false;
         }
-        
+
         if (settings.hideXray) {
             document.body.classList.add('pv-hide-xray-enabled');
         }
-        
+
         if (settings.advancedControls) {
             document.body.classList.add('pv-advanced-controls-enabled');
             addKeyboardShortcuts();
         } else {
             removeKeyboardShortcuts();
         }
-        
-        console.log('Prime Video Player Enhancer: Enhancements applied!', settings);
+
+        if (settings.forceQuality) {
+            initializeQualityEnhancements();
+        } else {
+            cleanupQuality();
+        }
+
     }
-    
+
+    function setupQualityInterception() {
+        if (interceptorsActive) return;
+
+        if (!window.originalFetch) {
+            window.originalFetch = window.fetch;
+            window.fetch = function (...args) {
+                const url = args[0];
+
+                if (typeof url === 'string') {
+                    const primeVideoPatterns = [
+                        'manifest', 'playlist', '.m3u8', '.mpd',
+                        'quality', 'bitrate', 'variant', 'segment'
+                    ];
+
+                    const matchesPattern = primeVideoPatterns.some(pattern => url.includes(pattern));
+
+                    if (matchesPattern) {
+                        if (args[1]) {
+                            args[1].headers = args[1].headers || {};
+                        } else {
+                            args[1] = { headers: {} };
+                        }
+                        args[1].headers['X-Quality-Preference'] = 'highest';
+                        args[1].headers['X-Bitrate-Preference'] = 'maximum';
+                    }
+                }
+
+                return window.originalFetch.apply(this, args);
+            };
+        }
+
+        const preferences = {
+            'prime-video-quality': 'best',
+            'video-quality': 'best',
+            'bitrate-preference': 'maximum',
+            'force-hd': 'true'
+        };
+
+        Object.entries(preferences).forEach(([key, value]) => {
+            try {
+                localStorage.setItem(key, value);
+                sessionStorage.setItem(key, value);
+            } catch (e) { }
+        });
+
+        interceptorsActive = true;
+        console.log('(debug) forceQuality network interception active');
+    }
+
+    function enhanceVideo() {
+        const videos = document.querySelectorAll('video');
+
+        videos.forEach(video => {
+            if (video.dataset.qualityEnhanced) return;
+            video.dataset.qualityEnhanced = 'true';
+
+            video.addEventListener('resize', () => {
+                console.log('(debug) video resized:', video.videoWidth + 'x' + video.videoHeight);
+                setTimeout(() => triggerQualityUpgrade(video), 1000);
+            });
+
+            video.addEventListener('canplay', () => {
+                triggerQualityUpgrade(video);
+            });
+
+            video.addEventListener('loadedmetadata', () => {
+                triggerQualityUpgrade(video);
+            });
+        });
+    }
+
+    function triggerQualityUpgrade(video) {
+        const qualityEvents = [
+            'qualitychange', 'bitratechange', 'requestHighQuality'
+        ];
+
+        qualityEvents.forEach(eventType => {
+            const event = new CustomEvent(eventType, {
+                detail: {
+                    quality: 'highest',
+                    bitrate: 'maximum'
+                }
+            });
+            video.dispatchEvent(event);
+            document.dispatchEvent(event);
+        });
+
+        const qualityAttributes = {
+            'data-quality': 'highest',
+            'data-bitrate': 'maximum',
+            'preload': 'metadata'
+        };
+
+        Object.entries(qualityAttributes).forEach(([attr, value]) => {
+            video.setAttribute(attr, value);
+        });
+    }
+
+    function executeQualityEnhancements() {
+        if (!settings.forceQuality) return;
+
+        setupQualityInterception();
+        enhanceVideo();
+    }
+
+    function initializeQualityEnhancements() {
+        if (!settings.forceQuality) return;
+
+        setupQualityInterception();
+
+        function checkAndExecuteQuality() {
+            if (document.querySelector('video') && settings.forceQuality) {
+                executeQualityEnhancements();
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAndExecuteQuality);
+        } else {
+            checkAndExecuteQuality();
+        }
+
+        if (!qualityObserver) {
+            qualityObserver = new MutationObserver(checkAndExecuteQuality);
+
+            function startQualityObserving() {
+                if (document.body) {
+                    qualityObserver.observe(document.body, { childList: true, subtree: true });
+                } else {
+                    setTimeout(startQualityObserving, 100);
+                }
+            }
+            startQualityObserving();
+        }
+    }
+
+    function cleanupQuality() {
+        if (qualityObserver) {
+            qualityObserver.disconnect();
+            qualityObserver = null;
+        }
+
+        if (window.originalFetch) {
+            window.fetch = window.originalFetch;
+            delete window.originalFetch;
+        }
+
+        interceptorsActive = false;
+    }
+
     function initializeAdvancedFeatures() {
         initRootSoon();
-        
+
         setupAdvancedKeyHandling();
     }
-    
-    
+
+
     function isVisible(el) {
         if (!el) return false;
         var rect = el.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 &&
-               rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
-               rect.left < (window.innerWidth || document.documentElement.clientWidth);
+            rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.left < (window.innerWidth || document.documentElement.clientWidth);
     }
-    
+
     function getActiveVideo() {
         var vids = Array.prototype.slice.call(document.querySelectorAll('video'));
         var best = null, bestArea = 0;
@@ -110,7 +290,7 @@
         }
         return best;
     }
-    
+
     function findPlayerRoot(video) {
         var candidates = [
             '[data-automation-id="webPlayer"]',
@@ -135,7 +315,7 @@
         }
         return v.parentElement || document.body;
     }
-    
+
     function ensureRoot() {
         if (rootRef && document.documentElement.contains(rootRef)) return rootRef;
         var v = getActiveVideo();
@@ -146,7 +326,7 @@
         }
         return rootRef;
     }
-    
+
     function suppressControlsBriefly() {
         var root = ensureRoot();
         if (!root) return;
@@ -156,11 +336,11 @@
             if (rootRef) rootRef.classList.remove('pv-seek-suppress');
         }, 700);
     }
-    
-    function clamp(n, min, max) { 
-        return Math.min(Math.max(n, min), max); 
+
+    function clamp(n, min, max) {
+        return Math.min(Math.max(n, min), max);
     }
-    
+
     function performSeek(video, deltaSec) {
         try {
             if (!video) return;
@@ -172,19 +352,19 @@
                 target = Math.max(0, target);
             }
             video.currentTime = target;
-            if (video.paused) { video.play().catch(function () {}); }
-        } catch (_) {}
+            if (video.paused) { video.play().catch(function () { }); }
+        } catch (_) { }
     }
-    
+
     function isEditableTarget(t) {
         if (!t || t === document.body) return false;
         if (t.isContentEditable) return true;
         var tag = t.tagName ? t.tagName.toLowerCase() : '';
         return tag === 'input' || tag === 'textarea' || tag === 'select';
     }
-    
+
     function setupAdvancedKeyHandling() {
-        window.addEventListener('keydown', function(e) {
+        window.addEventListener('keydown', function (e) {
             if (!interceptArrows || !settings.advancedControls) return;
             var key = e.key;
             if (key !== 'ArrowLeft' && key !== 'ArrowRight') return;
@@ -201,10 +381,10 @@
 
             performSeek(video, delta);
             suppressControlsBriefly();
-            
+
             showShortcutNotification(`Seek ${delta > 0 ? '+' : ''}${delta}s`);
         }, true);
-        
+
         window.addEventListener('keyup', function (e) {
             if (!interceptArrows || !settings.advancedControls) return;
             if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -215,7 +395,7 @@
             }
         }, true);
     }
-    
+
     function initRootSoon() {
         var tries = 0;
         var iv = setInterval(function () {
@@ -223,18 +403,18 @@
             if (ensureRoot() || tries > 60) clearInterval(iv);
         }, 250);
     }
-    
+
     let keyboardHandler = null;
-    
+
     function addKeyboardShortcuts() {
         removeKeyboardShortcuts();
-        
-        keyboardHandler = function(e) {
+
+        keyboardHandler = function (e) {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
                 return;
             }
-            
-            switch(e.key.toLowerCase()) {
+
+            switch (e.key.toLowerCase()) {
                 case 'f':
                     toggleFullscreen();
                     e.preventDefault();
@@ -252,24 +432,24 @@
                     break;
             }
         };
-        
+
         document.addEventListener('keydown', keyboardHandler);
     }
-    
+
     function removeKeyboardShortcuts() {
         if (keyboardHandler) {
             document.removeEventListener('keydown', keyboardHandler);
             keyboardHandler = null;
         }
     }
-    
+
     function showShortcutNotification(message) {
         const playerContainer = document.querySelector('[data-automation-id="webPlayer"]') ||
-                               document.querySelector('.atvwebplayersdk-root') ||
-                               document.querySelector('.dv-player-fullscreen') ||
-                               document.querySelector('.webPlayer') ||
-                               document.querySelector('video').closest('[class*="player"]') ||
-                               document.body;
+            document.querySelector('.atvwebplayersdk-root') ||
+            document.querySelector('.dv-player-fullscreen') ||
+            document.querySelector('.webPlayer') ||
+            document.querySelector('video').closest('[class*="player"]') ||
+            document.body;
 
         const existingNotification = playerContainer.querySelector('.pv-shortcut-notification');
         if (existingNotification) {
@@ -279,11 +459,11 @@
         const notification = document.createElement('div');
         notification.className = 'pv-shortcut-notification';
         notification.textContent = message;
-        
+
         playerContainer.appendChild(notification);
-        
+
         setTimeout(() => notification.classList.add('show'), 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -293,21 +473,25 @@
             }, 300);
         }, 2000);
     }
-    
+
     function toggleFullscreen() {
-        const fullscreenButton = document.querySelector('[aria-label="Full screen"]') || 
-                                document.querySelector('[data-automation-id="fullscreen-button"]') ||
-                                document.querySelector('button[title*="fullscreen" i]');
+        const fullscreenButton = document.querySelector('[aria-label="Full screen"]') ||
+            document.querySelector('[data-automation-id="fullscreen-button"]') ||
+            document.querySelector('button[title*="fullscreen" i]');
         if (fullscreenButton) {
             fullscreenButton.click();
         }
     }
-    
+
     function skipTime(seconds) {
         const video = document.querySelector('video');
         if (video) {
             video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
         }
     }
-    
+
+    window.addEventListener('beforeunload', function () {
+        cleanupQuality();
+    });
+
 })();
