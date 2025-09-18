@@ -1,5 +1,3 @@
-// Prime Video Player Enhancer Content Script
-// This script runs on Amazon Prime Video pages to enhance the player
 
 (function() {
     'use strict';
@@ -10,21 +8,18 @@
         advancedControls: true
     };
     
-    // Advanced overlay management variables
     let rootRef = null;
     let seekSuppressTimer = null;
     let interceptArrows = true;
     let overlaysEnabled = true;
     
-    // Wait for the page to load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeEnhancements);
     } else {
         initializeEnhancements();
     }
     
-    // Listen for settings updates from popup
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    chrome.runtime.onMessage.addListener(function(request, _sender, _sendResponse) {
         if (request.action === 'updateSettings') {
             settings = request.settings;
             applyEnhancements();
@@ -34,7 +29,6 @@
     function initializeEnhancements() {
         console.log('Prime Video Player Enhancer: Initializing...');
         
-        // Load settings from storage
         chrome.storage.sync.get({
             hideOverlays: true,
             hideXray: true,
@@ -42,8 +36,7 @@
         }, function(items) {
             settings = items;
             
-            // Wait for the video player to load
-            waitForElement('video, .dv-player-fullscreen', function(player) {
+            waitForElement('video, .dv-player-fullscreen', function(_player) {
                 console.log('Prime Video Player Enhancer: Player found, applying enhancements...');
                 applyEnhancements();
                 initializeAdvancedFeatures();
@@ -67,10 +60,8 @@
     }
     
     function applyEnhancements() {
-        // Remove existing classes first
         document.body.classList.remove('pv-hide-overlays-enabled', 'pv-hide-xray-enabled', 'pv-advanced-controls-enabled');
         
-        // Apply overlay hiding based on setting
         if (settings.hideOverlays) {
             document.body.classList.add('pv-hide-overlays-enabled');
             overlaysEnabled = true;
@@ -78,12 +69,10 @@
             overlaysEnabled = false;
         }
         
-        // Apply X-Ray hiding based on setting
         if (settings.hideXray) {
             document.body.classList.add('pv-hide-xray-enabled');
         }
         
-        // Apply advanced controls based on setting
         if (settings.advancedControls) {
             document.body.classList.add('pv-advanced-controls-enabled');
             addKeyboardShortcuts();
@@ -95,14 +84,11 @@
     }
     
     function initializeAdvancedFeatures() {
-        // Initialize player root detection for overlay management
         initRootSoon();
         
-        // Setup advanced arrow key handling (always active when advanced controls enabled)
         setupAdvancedKeyHandling();
     }
     
-    // ...existing utility functions...
     
     function isVisible(el) {
         if (!el) return false;
@@ -198,7 +184,6 @@
     }
     
     function setupAdvancedKeyHandling() {
-        // Advanced arrow key handler (capture phase to pre-empt site handlers)
         window.addEventListener('keydown', function(e) {
             if (!interceptArrows || !settings.advancedControls) return;
             var key = e.key;
@@ -208,18 +193,15 @@
             var video = getActiveVideo();
             if (!video) return;
 
-            // Prevent site from receiving the key (which would show controls)
             e.stopImmediatePropagation();
             e.preventDefault();
 
-            // Step sizes: Alt = 60s, default = 10s, Shift = 3s
             var step = e.altKey ? 60 : (e.shiftKey ? 3 : 10);
             var delta = (key === 'ArrowRight') ? +step : -step;
 
             performSeek(video, delta);
             suppressControlsBriefly();
             
-            // Show notification
             showShortcutNotification(`Seek ${delta > 0 ? '+' : ''}${delta}s`);
         }, true);
         
@@ -282,7 +264,6 @@
     }
     
     function showShortcutNotification(message) {
-        // Find the video player container
         const playerContainer = document.querySelector('[data-automation-id="webPlayer"]') ||
                                document.querySelector('.atvwebplayersdk-root') ||
                                document.querySelector('.dv-player-fullscreen') ||
@@ -290,7 +271,6 @@
                                document.querySelector('video').closest('[class*="player"]') ||
                                document.body;
 
-        // Remove any existing notifications
         const existingNotification = playerContainer.querySelector('.pv-shortcut-notification');
         if (existingNotification) {
             existingNotification.remove();
@@ -300,7 +280,6 @@
         notification.className = 'pv-shortcut-notification';
         notification.textContent = message;
         
-        // Inject into player container instead of body
         playerContainer.appendChild(notification);
         
         setTimeout(() => notification.classList.add('show'), 10);

@@ -1,10 +1,7 @@
-// Popup script for Prime Video Player Enhancer
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Load saved settings
     loadSettings();
     
-    // Add event listeners for all three toggles
     document.getElementById('hideOverlays').addEventListener('change', saveSettings);
     document.getElementById('hideXray').addEventListener('change', saveSettings);
     document.getElementById('advancedControls').addEventListener('change', saveSettings);
@@ -30,7 +27,6 @@ function saveSettings() {
     };
     
     chrome.storage.sync.set(settings, function() {
-        // Notify content script of changes
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             if (tabs[0] && (tabs[0].url.includes('amazon.com') || tabs[0].url.includes('primevideo.com'))) {
                 chrome.tabs.sendMessage(tabs[0].id, {action: 'updateSettings', settings: settings});
