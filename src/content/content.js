@@ -246,38 +246,6 @@
         Object.entries(qualityAttributes).forEach(([attr, value]) => {
             video.setAttribute(attr, value);
         });
-        forceHighestQualitySelection();
-    }
-
-    function forceHighestQualitySelection() {
-        try {
-            const qualityButtons = document.querySelectorAll(
-                '[data-automation-id*="quality"], ' +
-                '[class*="qualityButton"], ' +
-                '[class*="quality-selector"], ' +
-                'button[aria-label*="Quality"], ' +
-                'button[title*="Quality"]'
-            );
-
-            qualityButtons.forEach(button => {
-                const text = button.textContent || button.getAttribute('aria-label') || '';
-                if (/best|high|1080|4k|uhd|2160/i.test(text)) {
-                    button.click();
-                    console.debug('clicked quality button:', text);
-                }
-            });
-            const qualityOptions = document.querySelectorAll(
-                '[role="menuitem"][class*="quality"], ' +
-                '[data-testid*="quality-option"], ' +
-                'li[class*="quality"]'
-            );
-
-            if (qualityOptions.length > 0) {
-                qualityOptions[0].click();
-                console.debug('selected highest quality option');
-            }
-        } catch (e) {
-        }
     }
 
     function executeQualityEnhancements() {
